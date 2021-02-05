@@ -2,6 +2,7 @@
 using CourseLibrary.API.Services;
 using CourseLibrary.Helpers;
 using CourseLibrary.Models;
+using CourseLibrary.ResourceParameters;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -27,9 +28,10 @@ namespace CourseLibrary.Controllers
 
         [HttpGet()]
         [HttpHead]
-        public ActionResult<IEnumerable<AuthorDto>> GetAuthors()
+        public ActionResult<IEnumerable<AuthorDto>> GetAuthors(
+            [FromQuery] AuthorsResourceParameters authorsResourceParameters)
         {
-            var authorsFromRepo = courseLibraryRepository.GetAuthors();
+            var authorsFromRepo = courseLibraryRepository.GetAuthors(authorsResourceParameters);
             return Ok(this.mapper.Map<IEnumerable<AuthorDto>>(authorsFromRepo));
         }
 
