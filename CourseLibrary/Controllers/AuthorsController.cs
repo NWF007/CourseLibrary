@@ -1,4 +1,7 @@
-﻿using CourseLibrary.API.Services;
+﻿using AutoMapper;
+using CourseLibrary.API.Services;
+using CourseLibrary.Helpers;
+using CourseLibrary.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -12,18 +15,22 @@ namespace CourseLibrary.Controllers
     public class AuthorsController : ControllerBase
     {
         private readonly ICourseLibraryRepository courseLibraryRepository;
+        private readonly IMapper mapper;
 
-        public AuthorsController(ICourseLibraryRepository courseLibraryRepository)
+        public AuthorsController(ICourseLibraryRepository courseLibraryRepository, IMapper mapper)
         {
             this.courseLibraryRepository = courseLibraryRepository ??
                 throw new ArgumentNullException(nameof(courseLibraryRepository));
+            this.mapper = mapper ??
+                throw new ArgumentNullException(nameof(mapper));
         }
 
         [HttpGet()]
-        public IActionResult GetAuthors()
+        [HttpHead]
+        public ActionResult<IEnumerable<AuthorDto>> GetAuthors()
         {
             var authorsFromRepo = courseLibraryRepository.GetAuthors();
-            return Ok(authorsFromRepo);
+            return Ok(this.mapper.Map<IEnumerable<AuthorDto>>(authorsFromRepo));
         }
 
         [HttpGet("{authorId}")]
@@ -35,7 +42,7 @@ namespace CourseLibrary.Controllers
             {
                 return NotFound();
             }
-            return Ok(authorFromRepo);
+            return Ok(this.mapper.Map<AuthorDto>(authorFromRepo));
         }
     }
 }
