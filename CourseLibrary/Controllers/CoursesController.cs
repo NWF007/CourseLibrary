@@ -36,7 +36,7 @@ namespace CourseLibrary.Controllers
             return Ok(mapper.Map<IEnumerable<CourseDto>>(coursesForAuthorFromRepo));
         }
 
-        [HttpGet("{courseId}")]
+        [HttpGet("{courseId}", Name = "GetCourseForAuthor")]
         public ActionResult<CourseDto> GetCourseForAuthor(Guid authorId, Guid courseId)
         {
             if (!courseLibraryRepository.AuthorExists(authorId))
@@ -52,6 +52,26 @@ namespace CourseLibrary.Controllers
             }
 
             return Ok(mapper.Map<CourseDto>(courseForAuthorFromRepo));
+        }
+
+        [HttpPost]
+        public ActionResult<CourseDto> CreateCourseForAuthor(
+            Guid authorId, CourseForCreationDto course)
+        {
+            if (!courseLibraryRepository.AuthorExists(authorId))
+            {
+                return NotFound();
+            }
+
+            var courseEntity = mapper.Map<API.Entities.Course>(course);
+            courseLibraryRepository.AddCourse(authorId, courseEntity);
+            courseLibraryRepository.Save();
+
+            var courseToReturn = mapper.Map<CourseDto>(courseEntity);
+
+            return CreatedAtRoute("GetCourseForAuthor",
+                new { authorId = authorId, courseId = courseToReturn.Id },
+                courseToReturn);
         }
     }
 }
